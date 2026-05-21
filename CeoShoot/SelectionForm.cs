@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -10,7 +10,7 @@ namespace CeoShootMain
     public class SelectionForm : Form
     {
         private enum ToolMode { None, Draw, Text }
-        private enum GuiItem { None, ToolDraw, ToolText, ActionCopy, ActionSave }
+        private enum GuiItem { None, ToolDraw, ToolText, ActionColor, ActionCopy, ActionSave }
         private enum TextInteractMode { None, Moving, Resizing }
 
         private readonly Bitmap _screenShot;
@@ -21,6 +21,8 @@ namespace CeoShootMain
 
         private ToolMode _currentTool = ToolMode.None;
         private readonly List<List<Point>> _drawingLines = new List<List<Point>>();
+        private readonly List<Color> _lineColors = new List<Color>();
+        private Color _currentSelectedColor = Color.FromArgb(255, 30, 30);
         private List<Point> _currentLine;
         private bool _isDrawing;
 
@@ -29,6 +31,7 @@ namespace CeoShootMain
             public Point Location;
             public string Text = "";
             public float FontSize = 16f;
+            public Color ElementColor = Color.FromArgb(255, 30, 30);
 
             public Rectangle GetBounds()
             {
@@ -77,7 +80,7 @@ namespace CeoShootMain
 
         private void UpdateGuiPanelGeometry()
         {
-            const int btnCount = 4;
+            const int btnCount = 5;
             int panelWidth = (btnCount * ButtonSize) + ((btnCount + 1) * ButtonPadding);
             int panelHeight = ButtonSize + (ButtonPadding * 2);
 
@@ -90,7 +93,7 @@ namespace CeoShootMain
             _guiPanelBounds = new Rectangle(x, y, panelWidth, panelHeight);
             _guiButtons.Clear();
 
-            GuiItem[] items = { GuiItem.ToolDraw, GuiItem.ToolText, GuiItem.ActionCopy, GuiItem.ActionSave };
+            GuiItem[] items = { GuiItem.ToolDraw, GuiItem.ToolText, GuiItem.ActionColor, GuiItem.ActionCopy, GuiItem.ActionSave };
             int currentX = x + ButtonPadding;
             foreach (var item in items)
             {
@@ -135,7 +138,7 @@ namespace CeoShootMain
                     _textElements.Remove(_activeTextElement);
                 }
 
-                _activeTextElement = new TextElement { Location = e.Location };
+                _activeTextElement = new TextElement { Location = e.Location, ElementColor = _currentSelectedColor };
                 _textElements.Add(_activeTextElement);
                 _textInteract = TextInteractMode.None;
                 this.Invalidate();
@@ -147,6 +150,7 @@ namespace CeoShootMain
                 _isDrawing = true;
                 _currentLine = new List<Point> { e.Location };
                 _drawingLines.Add(_currentLine);
+                _lineColors.Add(_currentSelectedColor);
                 return;
             }
 
@@ -164,9 +168,12 @@ namespace CeoShootMain
             {
                 if (btn.Value.Contains(clickPt))
                 {
-                    if (_activeTextElement != null && string.IsNullOrWhiteSpace(_activeTextElement.Text))
-                        _textElements.Remove(_activeTextElement);
-                    _activeTextElement = null;
+                    if (btn.Key != GuiItem.ActionColor)
+                    {
+                        if (_activeTextElement != null && string.IsNullOrWhiteSpace(_activeTextElement.Text))
+                            _textElements.Remove(_activeTextElement);
+                        _activeTextElement = null;
+                    }
 
                     switch (btn.Key)
                     {
@@ -175,6 +182,20 @@ namespace CeoShootMain
                             break;
                         case GuiItem.ToolText:
                             _currentTool = (_currentTool == ToolMode.Text) ? ToolMode.None : ToolMode.Text;
+                            break;
+                        case GuiItem.ActionColor:
+                            using (ColorDialog cd = new ColorDialog())
+                            {
+                                cd.Color = _currentSelectedColor;
+                                if (cd.ShowDialog() == DialogResult.OK)
+                                {
+                                    _currentSelectedColor = cd.Color;
+                                    if (_activeTextElement != null)
+                                    {
+                                        _activeTextElement.ElementColor = cd.Color;
+                                    }
+                                }
+                            }
                             break;
                         case GuiItem.ActionCopy:
                             ExecuteCopy();
@@ -398,10 +419,18 @@ namespace CeoShootMain
 
         private void RenderDrawingsAndText(Graphics g, bool drawUiFrames)
         {
-            using (Pen drawPen = new Pen(Color.FromArgb(255, 30, 30), 3f))
+            for (int i = 0; i < _drawingLines.Count; i++)
             {
-                drawPen.StartCap = LineCap.Round; drawPen.EndCap = LineCap.Round; drawPen.LineJoin = LineJoin.Round;
-                foreach (var line in _drawingLines) { if (line.Count > 1) g.DrawLines(drawPen, line.ToArray()); }
+                var line = _drawingLines[i];
+                if (line.Count > 1)
+                {
+                    Color c = (i < _lineColors.Count) ? _lineColors[i] : Color.FromArgb(255, 30, 30);
+                    using (Pen drawPen = new Pen(c, 3f))
+                    {
+                        drawPen.StartCap = LineCap.Round; drawPen.EndCap = LineCap.Round; drawPen.LineJoin = LineJoin.Round;
+                        g.DrawLines(drawPen, line.ToArray());
+                    }
+                }
             }
 
             foreach (var txt in _textElements)
@@ -409,7 +438,7 @@ namespace CeoShootMain
                 Rectangle tBounds = txt.GetBounds();
 
                 using (Font font = new Font("Segoe UI", txt.FontSize, FontStyle.Bold))
-                using (SolidBrush textBrush = new SolidBrush(Color.FromArgb(255, 30, 30)))
+                using (SolidBrush textBrush = new SolidBrush(txt.ElementColor))
                 {
                     string cursorStr = (txt == _activeTextElement && _currentTool == ToolMode.Text) ? "|" : "";
                     g.DrawString(txt.Text + cursorStr, font, textBrush, txt.Location);
@@ -482,6 +511,7 @@ namespace CeoShootMain
 
                 RenderGuiButton(g, GuiItem.ToolDraw, "✏️", _currentTool == ToolMode.Draw);
                 RenderGuiButton(g, GuiItem.ToolText, "Ｔ", _currentTool == ToolMode.Text);
+                RenderGuiButton(g, GuiItem.ActionColor, "🎨", false);
                 RenderGuiButton(g, GuiItem.ActionCopy, "📋", false);
                 RenderGuiButton(g, GuiItem.ActionSave, "💾", false);
             }
