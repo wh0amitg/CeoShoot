@@ -1,6 +1,6 @@
 # CEOSHOOT 📸
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Platform: Windows](https://img.shields.io/badge/Platform-Windows-lightgray.svg?logo=windows)]()
 [![Framework: .NET](https://img.shields.io/badge/Framework-.NET%20Framework%204.7.2-purple.svg)]()
 
