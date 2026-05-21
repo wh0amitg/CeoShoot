@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CEOSHOOT — Premium Screen Capture</title>
+    <title>CEOSHOOT — Screen Capture</title>
     <style>
         :root {
             --bg-base: #09090b;
@@ -33,13 +33,11 @@
                 radial-gradient(circle at 85% 30%, rgba(88, 101, 242, 0.05), transparent 25%);
         }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-base); }
         ::-webkit-scrollbar-thumb { background: var(--bg-surface); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-        /* Navbar - Glassmorphism */
         nav {
             position: fixed;
             top: 0;
@@ -178,7 +176,6 @@
             transform: translateY(-2px);
         }
 
-        /* Features Section */
         .features {
             max-width: 1200px;
             margin: 0 auto;
@@ -245,7 +242,6 @@
             font-size: 15px;
         }
 
-        /* Installation Section */
         .install {
             background-color: #050505;
             border-top: 1px solid var(--border);
@@ -294,7 +290,6 @@
             color: var(--primary);
         }
 
-        /* Footer */
         footer {
             text-align: center;
             padding: 50px 20px;
@@ -302,7 +297,6 @@
             font-size: 14px;
         }
 
-        /* JS Animation Classes */
         .reveal {
             opacity: 0;
             transform: translateY(30px);
@@ -314,7 +308,6 @@
             transform: translateY(0);
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .cta-buttons { flex-direction: column; width: 100%; }
             .btn { width: 100%; }
@@ -406,7 +399,6 @@
     </footer>
 
     <script>
-        // 1. Navbar Glassmorphism effect on scroll
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) {
@@ -416,23 +408,21 @@
             }
         });
 
-        // 2. Scroll Reveal Animation using Intersection Observer
         function reveal() {
             var reveals = document.querySelectorAll(".reveal");
             for (var i = 0; i < reveals.length; i++) {
                 var windowHeight = window.innerHeight;
                 var elementTop = reveals[i].getBoundingClientRect().top;
-                var elementVisible = 100; // Trigger point
+                var elementVisible = 100;
 
                 if (elementTop < windowHeight - elementVisible) {
                     reveals[i].classList.add("active");
                 }
             }
         }
-        
-        // Trigger reveal on load and scroll
+
         window.addEventListener("scroll", reveal);
-        window.addEventListener("load", reveal); // Show initial elements immediately
+        window.addEventListener("load", reveal);
     </script>
 </body>
 </html>
