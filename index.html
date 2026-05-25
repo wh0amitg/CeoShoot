@@ -4,26 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CEOSHOOT — Screen Capture</title>
-    <meta property="og:title" content="CEOSHOOT — Screen Capture Tool" />
-    <meta property="og:description" content="Ditch the bloated software. Experience a seamless, frameless, and hyper-optimized screenshot tool built purely in C#." />
-    <meta property="og:url" content="https://nedelyanw-sketch.github.io/CeoShoot/" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://nedelyanw-sketch.github.io/CeoShoot/preview.png" />
-    <meta name="theme-color" content="#5865F2">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="CEOSHOOT — Premium Screen Capture Tool">
+    <meta property="og:site_name" content="CEOSHOOT" />
+    <meta property="og:title" content="CEOSHOOT — Screen Capture" />
+    <meta property="og:description" content="Frameless, hyper-optimized screenshot tool built purely in C#. Zero lag, pure performance." />
+    <meta property="og:url" content="https://nedelyanw-sketch.github.io/CeoShoot/" />
+    <meta property="og:image" content="https://nedelyanw-sketch.github.io/CeoShoot/image_29cce2.png" />
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="CEOSHOOT v0.3 — Screen Capture">
     <meta name="twitter:description" content="Hyper-optimized screenshot tool built purely in C#. Zero lag, pure performance.">
-    <meta name="twitter:image" content="https://nedelyanw-sketch.github.io/CeoShoot/preview.png">
+    <meta name="twitter:image" content="https://nedelyanw-sketch.github.io/CeoShoot/image_29cce2.png">
+    
+    <meta name="theme-color" content="#00F0FF">
+
     <style>
         :root {
-            --bg-base: #09090b;
-            --bg-surface: #18181b;
-            --primary: #5865F2;
-            --primary-hover: #4752C4;
-            --primary-glow: rgba(88, 101, 242, 0.4);
-            --text-main: #f4f4f5;
+            --bg-base: #050505;
+            --primary: #00F0FF;
+            --primary-hover: #00c3cf;
+            --primary-glow: rgba(0, 240, 255, 0.5);
+            --text-main: #ffffff;
             --text-muted: #a1a1aa;
-            --border: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(20, 20, 28, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.05);
         }
 
         * {
@@ -38,15 +42,34 @@
             color: var(--text-main);
             line-height: 1.6;
             overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(88, 101, 242, 0.05), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(88, 101, 242, 0.05), transparent 25%);
+        }
+
+        /* Анимированный фон через картинку */
+        #animated-bg {
+            position: fixed;
+            top: -5%;
+            left: -5%;
+            width: 110%;
+            height: 110%;
+            background-image: url('image_29cce2.png');
+            background-size: cover;
+            background-position: center;
+            z-index: -2;
+            transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform;
+        }
+
+        #bg-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, rgba(5,5,5,0.7) 0%, rgba(5,5,5,0.95) 100%);
+            z-index: -1;
         }
 
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-base); }
-        ::-webkit-scrollbar-thumb { background: var(--bg-surface); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+        ::-webkit-scrollbar-thumb { background: #2a2a35; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
         nav {
             position: fixed;
@@ -57,25 +80,26 @@
             align-items: center;
             padding: 20px 5%;
             z-index: 1000;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(0px);
+            transition: all 0.4s ease;
             border-bottom: 1px solid transparent;
         }
 
         nav.scrolled {
             padding: 15px 5%;
-            background: rgba(9, 9, 11, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border);
+            background: rgba(11, 11, 16, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border);
         }
 
         .logo {
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: 1px;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 2px;
             display: flex;
             align-items: center;
             cursor: pointer;
+            text-transform: uppercase;
         }
 
         .logo::after {
@@ -85,21 +109,31 @@
             height: 8px;
             background-color: var(--primary);
             border-radius: 50%;
-            margin-left: 6px;
-            box-shadow: 0 0 10px var(--primary-glow);
+            margin-left: 8px;
+            box-shadow: 0 0 15px var(--primary-glow);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 10px var(--primary-glow); }
+            50% { box-shadow: 0 0 25px var(--primary), 0 0 10px var(--primary); }
+            100% { box-shadow: 0 0 10px var(--primary-glow); }
         }
 
         .nav-links a {
             color: var(--text-muted);
             text-decoration: none;
-            margin-left: 30px;
+            margin-left: 35px;
             font-size: 14px;
             font-weight: 600;
-            transition: color 0.2s;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .nav-links a:hover {
-            color: var(--text-main);
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary-glow);
         }
 
         .hero {
@@ -110,107 +144,119 @@
             align-items: center;
             text-align: center;
             padding: 0 20px;
-            margin-top: 40px;
+            position: relative;
         }
 
         .badge {
-            background: rgba(88, 101, 242, 0.1);
+            background: rgba(0, 240, 255, 0.1);
             color: var(--primary);
-            padding: 6px 16px;
-            border-radius: 20px;
+            padding: 8px 20px;
+            border-radius: 30px;
             font-size: 13px;
             font-weight: 700;
-            border: 1px solid rgba(88, 101, 242, 0.2);
-            margin-bottom: 24px;
-            letter-spacing: 0.5px;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            margin-bottom: 30px;
+            letter-spacing: 1px;
             text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
         }
 
         .hero h1 {
-            font-size: clamp(40px, 6vw, 72px);
-            font-weight: 800;
-            line-height: 1.1;
+            font-size: clamp(40px, 7vw, 80px);
+            font-weight: 900;
+            line-height: 1.05;
             margin-bottom: 24px;
-            letter-spacing: -1.5px;
-            background: linear-gradient(to right, #fff, #a1a1aa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            letter-spacing: -2px;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        .hero h1 span {
+            color: var(--primary);
+            text-shadow: 0 0 40px var(--primary-glow);
         }
 
         .hero p {
             font-size: clamp(16px, 2vw, 20px);
             color: var(--text-muted);
-            max-width: 600px;
-            margin-bottom: 40px;
+            max-width: 650px;
+            margin-bottom: 45px;
+            font-weight: 400;
         }
 
         .cta-buttons {
             display: flex;
-            gap: 16px;
+            gap: 20px;
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 14px 32px;
+            padding: 16px 36px;
             border-radius: 8px;
             font-size: 15px;
-            font-weight: 600;
+            font-weight: 700;
             text-decoration: none;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn-primary {
             background-color: var(--primary);
-            color: #fff;
-            box-shadow: 0 0 20px rgba(88, 101, 242, 0.2);
+            color: #000;
+            box-shadow: 0 0 20px var(--primary-glow);
         }
 
         .btn-primary:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(88, 101, 242, 0.4);
+            background-color: var(--text-main);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
         }
 
         .btn-secondary {
-            background-color: var(--bg-surface);
+            background-color: var(--glass-bg);
+            backdrop-filter: blur(10px);
             color: var(--text-main);
-            border: 1px solid var(--border);
+            border: 1px solid var(--glass-border);
         }
 
         .btn-secondary:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-            transform: translateY(-2px);
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .features {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 100px 5%;
+            padding: 120px 5%;
         }
 
         .section-title {
             text-align: center;
-            font-size: 36px;
-            font-weight: 800;
-            margin-bottom: 60px;
+            font-size: 42px;
+            font-weight: 900;
+            margin-bottom: 70px;
             letter-spacing: -1px;
         }
 
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
+            gap: 30px;
         }
 
         .card {
-            background-color: var(--bg-surface);
-            border: 1px solid var(--border);
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
             padding: 40px 32px;
             border-radius: 16px;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
             position: relative;
             overflow: hidden;
         }
@@ -218,44 +264,45 @@
         .card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; height: 2px;
+            top: 0; left: 0; right: 0; height: 3px;
             background: linear-gradient(90deg, transparent, var(--primary), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            transform: scaleX(0);
+            transition: transform 0.5s ease;
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(88, 101, 242, 0.3);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transform: translateY(-10px);
+            border-color: rgba(0, 240, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 240, 255, 0.05);
         }
 
         .card:hover::before {
-            opacity: 1;
+            transform: scaleX(1);
         }
 
         .card-icon {
-            font-size: 32px;
-            margin-bottom: 20px;
+            font-size: 36px;
+            margin-bottom: 24px;
             display: inline-block;
+            filter: drop-shadow(0 0 10px var(--primary-glow));
         }
 
         .card h3 {
-            font-size: 20px;
-            font-weight: 700;
+            font-size: 22px;
+            font-weight: 800;
             margin-bottom: 12px;
         }
 
         .card p {
             color: var(--text-muted);
             font-size: 15px;
+            line-height: 1.7;
         }
 
         .install {
-            background-color: #050505;
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            padding: 100px 5%;
+            background: linear-gradient(to bottom, transparent, rgba(11, 11, 16, 0.9));
+            border-top: 1px solid var(--glass-border);
+            padding: 120px 5%;
         }
 
         .install-container {
@@ -265,23 +312,34 @@
 
         .step {
             display: flex;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
             align-items: flex-start;
+            background: var(--glass-bg);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            transition: transform 0.3s ease;
+        }
+        
+        .step:hover {
+            transform: translateX(10px);
+            border-color: rgba(255, 255, 255, 0.1);
         }
 
         .step-num {
-            font-size: 28px;
+            font-size: 40px;
             font-weight: 900;
             color: transparent;
-            -webkit-text-stroke: 1px var(--primary);
-            margin-right: 30px;
-            min-width: 40px;
+            -webkit-text-stroke: 1.5px var(--primary);
+            margin-right: 35px;
+            min-width: 50px;
+            line-height: 1;
         }
 
         .step-content h4 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 8px;
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 10px;
         }
 
         .step-content p {
@@ -290,60 +348,67 @@
         }
 
         kbd {
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            padding: 3px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            padding: 4px 10px;
             border-radius: 6px;
-            font-family: monospace;
+            font-family: 'Consolas', monospace;
             font-size: 14px;
             color: var(--primary);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
         footer {
             text-align: center;
             padding: 50px 20px;
+            background: #000;
             color: var(--text-muted);
             font-size: 14px;
+            border-top: 1px solid var(--glass-border);
         }
 
         .reveal {
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(40px) scale(0.95);
             transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
         }
 
         .reveal.active {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
         }
 
         @media (max-width: 768px) {
             .cta-buttons { flex-direction: column; width: 100%; }
             .btn { width: 100%; }
             .nav-links { display: none; }
-            .step { flex-direction: column; }
-            .step-num { margin-bottom: 10px; -webkit-text-stroke: 0; color: var(--primary); }
+            .step { flex-direction: column; padding: 25px; }
+            .step-num { margin-bottom: 15px; -webkit-text-stroke: 0; color: var(--primary); font-size: 32px; }
+            .step:hover { transform: translateY(-5px); }
         }
     </style>
 </head>
 <body>
+
+    <div id="animated-bg"></div>
+    <div id="bg-overlay"></div>
 
     <nav id="navbar">
         <div class="logo" onclick="window.scrollTo(0,0)">CEOSHOOT</div>
         <div class="nav-links">
             <a href="#features">Features</a>
             <a href="#install">Installation</a>
-            <a href="https://github.com/nedelyanw-sketch/CeoShoot" target="_blank">GitHub Repo</a>
+            <a href="https://github.com/nedelyanw-sketch/CeoShoot" target="_blank">GitHub</a>
         </div>
     </nav>
 
     <section class="hero reveal">
         <div class="badge">v0.3 Release is Live</div>
-        <h1>Instantly Capture.<br>Effortlessly Shoot.</h1>
+        <h1>Instantly Capture.<br><span>Effortlessly Shoot.</span></h1>
         <p>Ditch the bloated software. Experience a seamless, frameless, and hyper-optimized screenshot tool built purely in C#. Zero lag, pure performance.</p>
         <div class="cta-buttons">
-            <a href="https://github.com/nedelyanw-sketch/CeoShoot/releases/tag/Release" class="btn btn-primary" target="_blank">Download V0.1 Beta</a>
-            <a href="https://github.com/nedelyanw-sketch/CeoShoot" class="btn btn-secondary" target="_blank">View Source Code</a>
+            <a href="https://github.com/nedelyanw-sketch/CeoShoot/releases/tag/Release" class="btn btn-primary" target="_blank">Download V0.3</a>
+            <a href="https://github.com/nedelyanw-sketch/CeoShoot" class="btn btn-secondary" target="_blank">Source Code</a>
         </div>
     </section>
 
@@ -353,29 +418,29 @@
             <div class="card reveal" style="transition-delay: 0.1s;">
                 <div class="card-icon">⚡</div>
                 <h3>Zero Latency</h3>
-                <p>Runs silently in the system tray with a microscopic memory footprint. Instantly triggers via the global [PrintScreen] hook.</p>
+                <p>Runs silently in the system tray with a microscopic memory footprint. Instantly triggers via the global <kbd>PrintScreen</kbd> hook.</p>
             </div>
             <div class="card reveal" style="transition-delay: 0.2s;">
                 <div class="card-icon">🎨</div>
-                <h3>Premium GDI+ UI</h3>
-                <p>No standard, ugly Windows borders. Enjoy a fully custom, anti-aliased dark mode interface built from scratch.</p>
+                <h3>Premium UI</h3>
+                <p>No standard, ugly Windows borders. Enjoy a fully custom, anti-aliased dark mode interface built from scratch using GDI+.</p>
             </div>
             <div class="card reveal" style="transition-delay: 0.3s;">
                 <div class="card-icon">📂</div>
                 <h3>Smart Portability</h3>
-                <p>Never litters your app folder. Configurations are automatically and securely managed inside your Documents/CeoShoot directory.</p>
+                <p>Never litters your app folder. Configurations are automatically and securely managed inside your local directories.</p>
             </div>
             <div class="card reveal" style="transition-delay: 0.4s;">
                 <div class="card-icon">✍️</div>
                 <h3>On-The-Fly Editing</h3>
-                <p>Draw crisp lines and place text annotations directly onto your captured screen area before copying or saving.</p>
+                <p>Draw crisp lines, apply pixelation, or place text annotations directly onto your captured screen area before saving.</p>
             </div>
         </div>
     </section>
 
     <section class="install" id="install">
         <div class="install-container reveal">
-            <h2 class="section-title" style="text-align: left; margin-bottom: 50px;">Quick Setup Guide</h2>
+            <h2 class="section-title" style="text-align: left; margin-bottom: 50px;">Quick Setup</h2>
             
             <div class="step reveal" style="transition-delay: 0.1s;">
                 <div class="step-num">01</div>
@@ -422,16 +487,41 @@
             for (var i = 0; i < reveals.length; i++) {
                 var windowHeight = window.innerHeight;
                 var elementTop = reveals[i].getBoundingClientRect().top;
-                var elementVisible = 100;
+                var elementVisible = 50;
 
                 if (elementTop < windowHeight - elementVisible) {
                     reveals[i].classList.add("active");
                 }
             }
         }
-        
         window.addEventListener("scroll", reveal);
         window.addEventListener("load", reveal);
+
+        const animatedBg = document.getElementById('animated-bg');
+        document.addEventListener('mousemove', (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 50;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 50;
+            animatedBg.style.transform = `translate(${xAxis}px, ${yAxis}px)`;
+        });
+
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -5;
+                const rotateY = ((x - centerX) / centerX) * 5;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)`;
+            });
+        });
     </script>
 </body>
 </html>
